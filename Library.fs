@@ -124,7 +124,8 @@ module OraExcelDna =
     /// "https://servername.fa.us2.oraclecloud.com:443"
     let baseAPIUrl = GetSecret("baseAPIUrl")
 
-    /// Base URL of the Oracle Fusion REST API. REST Server URL. Typically, the URL of your Oracle Cloud service. For example
+    /// GL Balances API url
+    /// https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html 
     let balancesAPIUrl = "/fscmRestApi/resources/11.13.18.05/ledgerBalances"
 
     /// Function to perform the HTTP GET request and return the response
