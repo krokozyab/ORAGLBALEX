@@ -1,5 +1,5 @@
 ﻿namespace OraGlBalEx
-module MyFunctions =
+module OraExcelDna =
     open System
     open ExcelDna.Integration
     open CredentialManagement
