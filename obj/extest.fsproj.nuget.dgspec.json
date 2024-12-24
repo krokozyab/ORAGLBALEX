@@ -1,0 +1,108 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\sergey_rudenko\\Downloads\\fexcerc\\extest\\extest\\extest\\extest.fsproj": {}
+  },
+  "projects": {
+    "C:\\Users\\sergey_rudenko\\Downloads\\fexcerc\\extest\\extest\\extest\\extest.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\sergey_rudenko\\Downloads\\fexcerc\\extest\\extest\\extest\\extest.fsproj",
+        "projectName": "extest",
+        "projectPath": "C:\\Users\\sergey_rudenko\\Downloads\\fexcerc\\extest\\extest\\extest\\extest.fsproj",
+        "packagesPath": "C:\\Users\\sergey_rudenko\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\sergey_rudenko\\Downloads\\fexcerc\\extest\\extest\\extest\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\sergey_rudenko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0-windows"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\sdk\\9.0.100\\FSharp\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net6.0-windows7.0": {
+            "targetAlias": "net6.0-windows",
+            "projectReferences": {}
+          }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "all"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net6.0-windows7.0": {
+          "targetAlias": "net6.0-windows",
+          "dependencies": {
+            "CredentialManagement": {
+              "target": "Package",
+              "version": "[1.0.2, )",
+              "generatePathProperty": true
+            },
+            "ExcelDna.Addin": {
+              "target": "Package",
+              "version": "[1.7.0, )",
+              "generatePathProperty": true
+            },
+            "ExcelDna.Integration": {
+              "target": "Package",
+              "version": "[1.9.0-alpha3, )",
+              "generatePathProperty": true
+            },
+            "FSharp.Core": {
+              "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[9.0.100, )",
+              "generatePathProperty": true
+            },
+            "FSharp.Data": {
+              "target": "Package",
+              "version": "[6.4.0, )",
+              "generatePathProperty": true
+            },
+            "FsHttp": {
+              "target": "Package",
+              "version": "[15.0.1, )",
+              "generatePathProperty": true
+            },
+            "Microsoft.Office.Interop.Excel": {
+              "target": "Package",
+              "version": "[15.0.4795.1001, )",
+              "generatePathProperty": true
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )",
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
