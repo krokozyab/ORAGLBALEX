@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0-windows</TargetFramework>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <RootNamespace>extest</RootNamespace>
+        <RootNamespace>OraGlBalEx</RootNamespace>
     </PropertyGroup>
     
     <ItemGroup>
