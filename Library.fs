@@ -1,4 +1,4 @@
-﻿namespace extest
+﻿namespace oraglbalex
 module MyFunctions =
     open System
     open ExcelDna.Integration
