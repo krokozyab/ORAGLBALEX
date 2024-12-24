@@ -17,6 +17,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Include="Security.fs" />
+        <Compile Include="JsonConverters.fs" />
+        <Compile Include="Helpers.fs" />
         <Compile Include="Library.fs"/>
     </ItemGroup>
 
