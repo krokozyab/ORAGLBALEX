@@ -1,4 +1,4 @@
-﻿namespace oraglbalex
+﻿namespace OraGlBalEx
 module MyFunctions =
     open System
     open ExcelDna.Integration
@@ -10,7 +10,10 @@ module MyFunctions =
     open Newtonsoft.Json.Linq
     open System.Net
     open System.Text
-        
+    
+    /// Global error message
+    let mutable errMSG ="Unknown error"
+    
     /// Stores a secret in the Windows Credential Manager.
     /// Accepts a single string input in the format "key: value".
     [<ExcelFunction(Description = "Stores a secret in Windows Credential Manager. Input format: \"key: value\".")>]
@@ -257,9 +260,11 @@ module MyFunctions =
         with
         | :? JsonException as ex ->
             printfn "JSON Deserialization failed: %s" ex.Message
+            errMSG <- "JSON Deserialization failed: " + ex.Message
             None
         | ex ->
             printfn "Deserialization failed: %s" ex.Message
+            errMSG <- "Deserialization failed: " + ex.Message
             None
             
             
@@ -303,10 +308,18 @@ module MyFunctions =
         ]
         |> List.choose id  // Filters out `None` values, keeping only `Some (key, value)`
         
+        
+    /// Base URL of the Oracle Fusion REST API. REST Server URL. Typically, the URL of your Oracle Cloud service. For example
+    /// "https://servername.fa.us2.oraclecloud.com:443"
+    let baseAPIUrl = GetSecret("baseAPIUrl") 
+    
+    /// Base URL of the Oracle Fusion REST API. REST Server URL. Typically, the URL of your Oracle Cloud service. For example
+    let balancesAPIUrl= "/fscmRestApi/resources/11.13.18.05/ledgerBalances" 
+    
     /// Function to perform the HTTP GET request and return the response
     let fetchLedgers (requestLimit : int) (offset : int)  (encodedCredentials: string) (balancesDisplayFields: string) (balancesFinder: string)=
         http {
-            GET "https://edvh-dev1.fa.us2.oraclecloud.com:443/fscmRestApi/resources/11.13.18.05/ledgerBalances"
+            GET $"{baseAPIUrl}{balancesAPIUrl}"
             query [
                 "offset", $"{offset}"
                 "limit", $"{requestLimit}"
@@ -316,7 +329,6 @@ module MyFunctions =
             ]
             header "Authorization" $"Basic {encodedCredentials}"
             Accept "application/json" // Specify that we expect JSON response
-            UserAgent "FsHttp" 
         }
         |> Request.sendAsync
 
@@ -340,22 +352,28 @@ module MyFunctions =
                         | None ->
                             // Deserialization failed; return the accumulated list so far
                             printfn "Failed to deserialize response."
+                            errMSG <- "Failed to deserialize response."
                             return listAcc
                     | HttpStatusCode.Unauthorized ->
                         printfn "Unauthorized: Check your credentials."
+                        errMSG <- "Unauthorized: Check your credentials."
                         return listAcc
                     | HttpStatusCode.Forbidden ->
                         printfn "Forbidden: You don't have access to this resource."
+                        errMSG <- "Forbidden: You don't have access to this resource."
                         return listAcc
                     | HttpStatusCode.NotFound ->
                         printfn "Not Found: The requested resource does not exist."
+                        errMSG <- "Not Found: The requested resource does not exist."
                         return listAcc
                     | status ->
                         printfn "Request failed with status code %d" (int status)
+                        errMSG <- "Request failed with status code: " + status.ToString()
                         return listAcc
                 with
                 | ex ->
                     printfn "An error occurred: %s" ex.Message
+                    errMSG <- "An error occurred: " + ex.Message
                     return listAcc
             }
         // Start the recursion with the initial offset and an empty list
@@ -378,7 +396,7 @@ module MyFunctions =
         try
             // Define your credentials and requestLimit
             let requestLimit = 500
-            let encodedCredentials = (GetSecret "user", GetSecret "password") |> encodeBasicAuth
+            let encodedCredentials = (GetSecret "oracleuser", GetSecret "oraclepassword") |> encodeBasicAuth
             // Fetch and deserialize balances asynchronously
             let data = 
                 fetchAndDeserializeLedgersAsync requestLimit encodedCredentials balancesDisplayFields balancesFinder ()
@@ -387,7 +405,7 @@ module MyFunctions =
 
             if List.isEmpty data then
                 // Return a message indicating no data was fetched
-                box [| [| "No data to return." |] |]
+                errMSG
             else
                 // Extract headers from the first record to preserve order
                 let headers =
@@ -493,5 +511,5 @@ module MyFunctions =
         with
         | ex ->
             // In case of any unexpected errors, return the error message in Excel
-            box [| [| sprintf "An error occurred: %s" ex.Message |] |]
+            ("An error occurred: " + ex.Message) :> obj
     

@@ -1,3 +1,6 @@
-/obj/
-/.idea/
-/.git/
+# Ignore Rider .idea folders
+.idea/
+.idea.ORAGLBALEX.dir/
+
+# Ignore obj folders
+obj/
