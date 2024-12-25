@@ -8,7 +8,7 @@ module OraExcelDna =
     open Microsoft.FSharp.Control
     open Newtonsoft.Json
     open System.Net
-    
+
     open Security
     open JsonConverters
     open Helpers
@@ -60,24 +60,25 @@ module OraExcelDna =
           [<JsonPropertyName("hasMore")>]
           HasMore: bool }
 
-    /// Global error message
-    let mutable errMSG = "Unknown error"
-
 
     /// Function to deserialize the JSON string into LedgersResponse using custom settings
-    let deserializeLedgersResponse (json: string) : LedgersResponse option =
+    let deserializeLedgersResponse (json: string) : Result<LedgersResponse, string> =
         try
             let response = JsonConvert.DeserializeObject<LedgersResponse>(json, jsonSettings)
-            Some response
+            //Some response
+            if isNull (response :> obj) then
+                Error "Deserialization resulted in null."
+            else
+                Ok response
         with
         | :? JsonException as ex ->
-            printfn "JSON Deserialization failed: %s" ex.Message
-            errMSG <- "JSON Deserialization failed: " + ex.Message
-            None
+            let errorMsg = $"JSON Deserialization failed: {ex.Message}"
+            printfn "%s" errorMsg
+            Error errorMsg
         | ex ->
+            let errorMsg = $"Deserialization failed: {ex.Message}"
             printfn "Deserialization failed: %s" ex.Message
-            errMSG <- "Deserialization failed: " + ex.Message
-            None
+            Error errorMsg
 
 
     /// Adds a key-value pair to the map if the value is `Some`, handling `string option` types
@@ -125,7 +126,7 @@ module OraExcelDna =
     let baseAPIUrl = GetSecret("baseAPIUrl")
 
     /// GL Balances API url
-    /// https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html 
+    /// https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html
     let balancesAPIUrl = "/fscmRestApi/resources/11.13.18.05/ledgerBalances"
 
     /// Function to perform the HTTP GET request and return the response
@@ -150,9 +151,9 @@ module OraExcelDna =
         }
         |> Request.sendAsync
 
-    /// Asynchronous function to fetch and deserialize the "items" array
+    /// Fetch and deserialize the "items" array
     let fetchAndDeserializeLedgersAsync requestLimit encodedCredentials balancesDisplayFields balancesFinder () =
-        let rec helper (offset: int) (listAcc: BalancesFields list) : Async<BalancesFields list> =
+        let rec helper (offset: int) (listAcc: BalancesFields list) =
             async {
                 try
                     let! response =
@@ -165,43 +166,40 @@ module OraExcelDna =
                             |> Async.AwaitTask
 
                         match deserializeLedgersResponse content with
-                        | Some deserializedResponse ->
+                        | Ok deserializedResponse ->
                             let fetchedItems = deserializedResponse.Items
                             let hasMore = deserializedResponse.HasMore
                             //printfn "Successfully fetched and deserialized %d balances." (List.length fetchedItems)
                             match hasMore with
-                            | true -> return! helper (offset + requestLimit) (listAcc @ fetchedItems)
-                            | _ -> return listAcc @ fetchedItems
-                        | None ->
+                            | true ->
+                                let! result = helper (offset + requestLimit) (listAcc @ fetchedItems)
+                                return result
+                            | _ -> return Ok(listAcc @ fetchedItems) // No more data to fetch
+                        | Error errMsg ->
                             // Deserialization failed; return the accumulated list so far
                             printfn "Failed to deserialize response."
-                            errMSG <- "Failed to deserialize response."
-                            return listAcc
+                            return Error errMsg
                     | HttpStatusCode.Unauthorized ->
-                        printfn "Unauthorized: Check your credentials."
-                        errMSG <- "Unauthorized: Check your credentials."
-                        return listAcc
+                        let err = "Unauthorized: Check your credentials."
+                        printfn "%s" err
+                        return Error err
                     | HttpStatusCode.Forbidden ->
-                        printfn "Forbidden: You don't have access to this resource."
-                        errMSG <- "Forbidden: You don't have access to this resource."
-                        return listAcc
+                        let err = "Forbidden: You don't have access to this resource."
+                        printfn "%s" err
+                        return Error err
                     | HttpStatusCode.NotFound ->
-                        printfn "Not Found: The requested resource does not exist."
-                        errMSG <- "Not Found: The requested resource does not exist."
-                        return listAcc
+                        let err = "Not Found: The requested resource does not exist."
+                        printfn "%s" err
+                        return Error err
                     | status ->
-                        printfn "Request failed with status code %d" (int status)
-
-                        errMSG <-
-                            "Request failed with status code: "
-                            + status.ToString()
-
-                        return listAcc
+                        let err = $"Request failed with status code {(int status)}"
+                        printfn "%s" err
+                        return Error err
                 with
                 | ex ->
-                    printfn "An error occurred: %s" ex.Message
-                    errMSG <- "An error occurred: " + ex.Message
-                    return listAcc
+                    let err = $"An error occurred: {ex.Message}"
+                    printfn "%s" err
+                    return Error err
             }
         // Start the recursion with the initial offset and an empty list
         helper 0 []
@@ -220,135 +218,141 @@ module OraExcelDna =
     /// Excel-DNA Function to return BalancesFields data as a 2D array with headers at the top and segX columns
     [<ExcelFunction(Description = "Returns BalancesFields data as a two-dimensional array with headers at the top, including segmented DetailAccountCombination.")>]
     let WriteBalancesFieldsToExcel balancesFinder balancesDisplayFields : obj =
-        try
+        async {
             // Define your credentials and requestLimit
             let requestLimit = 500
 
             let encodedCredentials =
                 (GetSecret "oracleuser", GetSecret "oraclepassword")
                 |> encodeBasicAuth
+
             // Fetch and deserialize balances asynchronously
-            let data =
+            let! fetchResult =
                 fetchAndDeserializeLedgersAsync requestLimit encodedCredentials balancesDisplayFields balancesFinder ()
-                |> Async.RunSynchronously
-                |> List.map balancesFieldsToList
 
-            if List.isEmpty data then
-                // Return a message indicating no data was fetched
-                errMSG
-            else
-                // Extract headers from the first record to preserve order
-                let headers =
-                    match data with
-                    | firstRecord :: _ -> firstRecord |> List.map fst
-                    | [] -> []
+            match fetchResult with
+            | Error errMsg ->
+                // Return the error message to Excel
+                return errMsg :> obj
+            | Ok dataList ->
+                if List.isEmpty dataList then
+                    // Return a message indicating no data was fetched
+                    return "No data fetched." :> obj
+                else
+                    // Proceed to process and return data as 2D array
+                    let processedData = dataList |> List.map balancesFieldsToList
 
-                // Determine the maximum number of segments across all records
-                // Exclude records where DetailAccountCombination is 'N/A'
-                let maxSegments =
-                    data
-                    |> List.choose (fun record ->
-                        match List.tryFind (fun (k, _) -> k = "DetailAccountCombination") record with
-                        | Some (_, value) ->
-                            match value with
-                            | :? string as s when s <> "N/A" ->
-                                let segments = splitDetailAccountCombination s
-                                Some segments.Length
-                            | _ -> None
-                        | None -> None)
-                    |> tryFindMax
-                    |> Option.defaultValue 0
+                    // Extract headers from the first record to preserve order
+                    let headers =
+                        match processedData with
+                        | firstRecord :: _ -> firstRecord |> List.map fst
+                        | [] -> []
 
-                // Generate 'seg1' to 'segN' headers
-                let segHeaders =
-                    [ 1..maxSegments ]
-                    |> List.map (fun i -> sprintf "seg%d" i)
+                    // Determine the maximum number of segments across all records
+                    // Exclude records where DetailAccountCombination is 'N/A'
+                    let maxSegments =
+                        processedData
+                        |> List.choose (fun record ->
+                            match List.tryFind (fun (k, _) -> k = "DetailAccountCombination") record with
+                            | Some (_, value) ->
+                                match value with
+                                | :? string as s when s <> "N/A" ->
+                                    let segments = splitDetailAccountCombination s
+                                    Some segments.Length
+                                | _ -> None
+                            | None -> None)
+                        |> tryFindMax
+                        |> Option.defaultValue 0
 
-                // Find the index of 'DetailAccountCombination' in headers
-                let detailIndexOpt =
-                    headers
-                    |> List.tryFindIndex (fun h -> h = "DetailAccountCombination")
+                    // Generate 'seg1' to 'segN' headers
+                    let segHeaders =
+                        [ 1..maxSegments ]
+                        |> List.map (fun i -> sprintf "seg%d" i)
 
-                // Insert 'segX' headers after 'DetailAccountCombination'
-                let updatedHeaders =
-                    match detailIndexOpt with
-                    | Some idx ->
-                        let before = headers[0..idx]
+                    // Find the index of 'DetailAccountCombination' in headers
+                    let detailIndexOpt =
+                        headers
+                        |> List.tryFindIndex (fun h -> h = "DetailAccountCombination")
 
-                        let after =
-                            if idx + 1 < headers.Length then
-                                headers[idx + 1 ..]
-                            else
-                                []
-
-                        before @ segHeaders @ after
-                    | None ->
-                        // If 'DetailAccountCombination' not found, append 'segX' at the end
-                        headers @ segHeaders
-
-                // Prepare data rows aligned with updated headers
-                let rows =
-                    data
-                    |> List.map (fun record ->
-                        // Convert the list to a map for easy access
-                        let recordMap = record |> Map.ofList
-
-                        // Extract existing row data
-                        let rowData =
-                            headers
-                            |> List.map (fun header ->
-                                match Map.tryFind header recordMap with
-                                | Some value -> value
-                                | None -> box "")
-                            |> Array.ofList
-
-                        // Extract and split 'DetailAccountCombination' segments
-                        let segments =
-                            match Map.tryFind "DetailAccountCombination" recordMap with
-                            | Some (:? string as s) when s <> "N/A" -> splitDetailAccountCombination s |> Array.map box
-                            | _ -> Array.empty // If 'N/A' or not present, leave segments empty
-
-                        // Pad segments with empty strings if necessary
-                        let paddedSegments =
-                            if segments.Length < maxSegments then
-                                Array.append segments (Array.create (maxSegments - segments.Length) (box ""))
-                            else
-                                segments[0 .. maxSegments - 1]
-
-                        // Insert the segments into the row data after 'DetailAccountCombination'
+                    // Insert 'segX' headers after 'DetailAccountCombination'
+                    let updatedHeaders =
                         match detailIndexOpt with
                         | Some idx ->
-                            // Split the rowData into before and after the DetailAccountCombination
-                            let before = rowData[0..idx]
+                            let before = headers[0..idx]
 
                             let after =
-                                if idx + 1 < rowData.Length then
-                                    rowData[idx + 1 ..]
+                                if idx + 1 < headers.Length then
+                                    headers[idx + 1 ..]
                                 else
-                                    [||]
-                            // Concatenate before, segments, and after
-                            Array.concat [ before
-                                           paddedSegments
-                                           after ]
+                                    []
+
+                            before @ segHeaders @ after
                         | None ->
-                            // If 'DetailAccountCombination' not found, append segments at the end
-                            Array.append rowData paddedSegments)
-                    |> List.toArray
+                            // If 'DetailAccountCombination' not found, append 'segX' at the end
+                            headers @ segHeaders
 
-                // Convert headers to obj[] by boxing each string
-                let headersObjArray: obj [] = updatedHeaders |> List.toArray |> Array.map box
+                    // Prepare data rows aligned with updated headers
+                    let rows =
+                        processedData
+                        |> List.map (fun record ->
+                            // Convert the list to a map for easy access
+                            let recordMap = record |> Map.ofList
 
-                // Combine headers and rows into obj[][]
-                let allData: obj [] [] = Array.append [| headersObjArray |] rows
+                            // Extract existing row data
+                            let rowData =
+                                headers
+                                |> List.map (fun header ->
+                                    match Map.tryFind header recordMap with
+                                    | Some value -> value
+                                    | None -> box "")
+                                |> Array.ofList
 
-                // Convert to a 2D object array
-                let rowCount = Array.length allData
-                let colCount = updatedHeaders.Length
-                let resultArray = Array2D.init rowCount colCount (fun i j -> allData[i][j])
+                            // Extract and split 'DetailAccountCombination' segments
+                            let segments =
+                                match Map.tryFind "DetailAccountCombination" recordMap with
+                                | Some (:? string as s) when s <> "N/A" ->
+                                    splitDetailAccountCombination s |> Array.map box
+                                | _ -> Array.empty // If 'N/A' or not present, leave segments empty
 
-                // Return the two-dimensional array as an object for Excel-DNA
-                box resultArray
-        with
-        | ex ->
-            // In case of any unexpected errors, return the error message in Excel
-            ("An error occurred: " + ex.Message) :> obj
+                            // Pad segments with empty strings if necessary
+                            let paddedSegments =
+                                if segments.Length < maxSegments then
+                                    Array.append segments (Array.create (maxSegments - segments.Length) (box ""))
+                                else
+                                    segments[0 .. maxSegments - 1]
+
+                            // Insert the segments into the row data after 'DetailAccountCombination'
+                            match detailIndexOpt with
+                            | Some idx ->
+                                // Split the rowData into before and after the DetailAccountCombination
+                                let before = rowData[0..idx]
+
+                                let after =
+                                    if idx + 1 < rowData.Length then
+                                        rowData[idx + 1 ..]
+                                    else
+                                        [||]
+                                // Concatenate before, segments, and after
+                                Array.concat [ before
+                                               paddedSegments
+                                               after ]
+                            | None ->
+                                // If 'DetailAccountCombination' not found, append segments at the end
+                                Array.append rowData paddedSegments)
+                        |> List.toArray
+
+                    // Convert headers to obj[] by boxing each string
+                    let headersObjArray: obj [] = updatedHeaders |> List.toArray |> Array.map box
+
+                    // Combine headers and rows into obj[][]
+                    let allData: obj [] [] = Array.append [| headersObjArray |] rows
+
+                    // Convert to a 2D object array
+                    let rowCount = Array.length allData
+                    let colCount = updatedHeaders.Length
+                    let resultArray = Array2D.init rowCount colCount (fun i j -> allData[i][j])
+
+                    // Return the two-dimensional array as an object for Excel-DNA
+                    return (box resultArray)
+        }
+        |> Async.RunSynchronously
