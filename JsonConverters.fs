@@ -3,6 +3,7 @@
 open System
 open Newtonsoft.Json
 open Newtonsoft.Json.Linq
+open Serilog
 
 /// Represents a value that can be either a float or a string
 type FloatOrString =
@@ -41,6 +42,7 @@ type FloatOrStringConverter() =
             FloatOrString.StringValue("N/A") :> obj
         | _ ->
             // For any other unexpected token, throw an exception
+            Log.Error("Unexpected token type for FloatOrString.")
             raise (JsonSerializationException("Unexpected token type for FloatOrString."))
 
     override _.WriteJson(writer: JsonWriter, value: obj, serializer: JsonSerializer) =
@@ -90,7 +92,9 @@ type OptionConverter() =
                 // Serialize the inner value
                 serializer.Serialize(writer, fields[0])
             | "None" -> writer.WriteNull()
-            | _ -> raise (JsonSerializationException(sprintf "Unknown union case: %s" unionCaseInfo.Name))
+            | _ ->
+                Log.Error($"Unknown union case: {unionCaseInfo.Name}")
+                raise (JsonSerializationException(sprintf $"Unknown union case: {unionCaseInfo.Name}"))
 
 /// Configure JsonSerializerSettings to include both custom converters
 let jsonSettings =
