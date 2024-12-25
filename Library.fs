@@ -8,10 +8,22 @@ module OraExcelDna =
     open Microsoft.FSharp.Control
     open Newtonsoft.Json
     open System.Net
+    open Serilog
+    open System.Threading.Tasks
 
     open Security
     open JsonConverters
     open Helpers
+
+    let initializeLogger () =
+        Log.Logger <-
+            LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File("logs/oraglbalexlog.txt", rollingInterval = RollingInterval.Day)
+                .CreateLogger()
+
+    initializeLogger ()
+    Log.Information("OraGlBalEx has been loaded.")
 
     /// Request output fields
     [<CLIMutable>]
@@ -73,11 +85,11 @@ module OraExcelDna =
         with
         | :? JsonException as ex ->
             let errorMsg = $"JSON Deserialization failed: {ex.Message}"
-            printfn "%s" errorMsg
+            Log.Error(errorMsg)
             Error errorMsg
         | ex ->
             let errorMsg = $"Deserialization failed: {ex.Message}"
-            printfn "Deserialization failed: %s" ex.Message
+            Log.Error(errorMsg)
             Error errorMsg
 
 
@@ -172,34 +184,33 @@ module OraExcelDna =
                             //printfn "Successfully fetched and deserialized %d balances." (List.length fetchedItems)
                             match hasMore with
                             | true ->
-                                let! result = helper (offset + requestLimit) (listAcc @ fetchedItems)
+                                let! result = helper (offset + requestLimit) (fetchedItems @ listAcc)
                                 return result
-                            | _ -> return Ok(listAcc @ fetchedItems) // No more data to fetch
+                            | _ -> return Ok(fetchedItems @ listAcc) // No more data to fetch
                         | Error errMsg ->
-                            // Deserialization failed; return the accumulated list so far
-                            printfn "Failed to deserialize response."
+                            Log.Error(errMsg)
                             return Error errMsg
                     | HttpStatusCode.Unauthorized ->
-                        let err = "Unauthorized: Check your credentials."
-                        printfn "%s" err
-                        return Error err
+                        let errMsg = "Unauthorized: Check your credentials."
+                        Log.Error(errMsg)
+                        return Error errMsg
                     | HttpStatusCode.Forbidden ->
-                        let err = "Forbidden: You don't have access to this resource."
-                        printfn "%s" err
-                        return Error err
+                        let errMsg = "Forbidden: You don't have access to this resource."
+                        Log.Error(errMsg)
+                        return Error errMsg
                     | HttpStatusCode.NotFound ->
-                        let err = "Not Found: The requested resource does not exist."
-                        printfn "%s" err
-                        return Error err
+                        let errMsg = "Not Found: The requested resource does not exist."
+                        Log.Error(errMsg)
+                        return Error errMsg
                     | status ->
-                        let err = $"Request failed with status code {(int status)}"
-                        printfn "%s" err
-                        return Error err
+                        let errMsg = $"Request failed with status code {(int status)}"
+                        Log.Error(errMsg)
+                        return Error errMsg
                 with
                 | ex ->
-                    let err = $"An error occurred: {ex.Message}"
-                    printfn "%s" err
-                    return Error err
+                    let errMsg = $"An error occurred: {ex.Message}"
+                    Log.Error(errMsg)
+                    return Error errMsg
             }
         // Start the recursion with the initial offset and an empty list
         helper 0 []
@@ -216,7 +227,8 @@ module OraExcelDna =
 
 
     /// Excel-DNA Function to return BalancesFields data as a 2D array with headers at the top and segX columns
-    [<ExcelFunction(Description = "Returns BalancesFields data as a two-dimensional array with headers at the top, including segmented DetailAccountCombination.")>]
+    [<ExcelFunction(Name = "WriteBalancesFieldsToExcel",
+                    Description = "Returns Oracle GL BalancesFields including segmented DetailAccountCombination.")>]
     let WriteBalancesFieldsToExcel balancesFinder balancesDisplayFields : obj =
         async {
             // Define your credentials and requestLimit
