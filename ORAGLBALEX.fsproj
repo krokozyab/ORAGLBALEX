@@ -23,6 +23,7 @@
         <Compile Include="JsonConverters.fs" />
         <Compile Include="Helpers.fs" />
         <Compile Include="Library.fs"/>
+        <Content Include="README.md" />
     </ItemGroup>
 
 </Project>
