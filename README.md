@@ -24,7 +24,7 @@ Before installing OraGlBalEx, ensure you have the following prerequisites:
 
 - **Microsoft Excel:** Version compatible with Excel-DNA add-ins (Excel 2007 and later).
 - **.NET 6.0:** Ensure that the [.NET 6.0 runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) is installed on your machine.
-- **Oracle Fusion REST API Access:** Valid credentials and necessary permissions to access Oracle GL Balances APIs (only basic authorization here).
+- **Oracle Fusion REST API Access:** Valid credentials and necessary permissions to access Oracle GL Balances APIs (only basic authentication here).
 - **PowerShell (Optional):** For managing credentials and environment setup.
 
 ---
