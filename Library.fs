@@ -86,10 +86,12 @@ module OraExcelDna =
         | :? JsonException as ex ->
             let errorMsg = $"JSON Deserialization failed: {ex.Message}"
             Log.Error(errorMsg)
+            Log.Information(json)
             Error errorMsg
         | ex ->
             let errorMsg = $"Deserialization failed: {ex.Message}"
             Log.Error(errorMsg)
+            Log.Information(json)
             Error errorMsg
 
 
@@ -189,22 +191,32 @@ module OraExcelDna =
                             | _ -> return Ok(fetchedItems @ listAcc) // No more data to fetch
                         | Error errMsg ->
                             Log.Error(errMsg)
+                            Log.Information(response.headers.ToString())
+                            Log.Information(response.request.ToString())
                             return Error errMsg
                     | HttpStatusCode.Unauthorized ->
                         let errMsg = "Unauthorized: Check your credentials."
                         Log.Error(errMsg)
+                        Log.Information(response.headers.ToString())
+                        Log.Information(response.request.ToString())
                         return Error errMsg
                     | HttpStatusCode.Forbidden ->
                         let errMsg = "Forbidden: You don't have access to this resource."
                         Log.Error(errMsg)
+                        Log.Information(response.headers.ToString())
+                        Log.Information(response.request.ToString())
                         return Error errMsg
                     | HttpStatusCode.NotFound ->
                         let errMsg = "Not Found: The requested resource does not exist."
                         Log.Error(errMsg)
+                        Log.Information(response.headers.ToString())
+                        Log.Information(response.request.ToString())
                         return Error errMsg
                     | status ->
                         let errMsg = $"Request failed with status code {(int status)}"
                         Log.Error(errMsg)
+                        Log.Information(response.headers.ToString())
+                        Log.Information(response.request.ToString())
                         return Error errMsg
                 with
                 | ex ->
@@ -228,8 +240,11 @@ module OraExcelDna =
 
     /// Excel-DNA Function to return BalancesFields data as a 2D array with headers at the top and segX columns
     [<ExcelFunction(Name = "WriteBalancesFieldsToExcel",
-                    Description = "Returns Oracle GL BalancesFields including segmented DetailAccountCombination.")>]
-    let WriteBalancesFieldsToExcel balancesFinder balancesDisplayFields : obj =
+                    Description = "Returns Oracle GL BalancesFields including segmented DetailAccountCombination.",
+                    HelpTopic = "https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html")>]
+    let WriteBalancesFieldsToExcel
+        ([<ExcelArgument(Name = "Finder", Description = "Used as a predefined finder to search the collection.")>] balancesFinder)
+        ([<ExcelArgument(Name = "Fiields", Description = "This parameter filters the resource fields. Only the specified fields are returned.")>] balancesDisplayFields) : obj =
         async {
             // Define your credentials and requestLimit
             let requestLimit = 500

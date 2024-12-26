@@ -24,6 +24,8 @@
         <Compile Include="Helpers.fs" />
         <Compile Include="Library.fs"/>
         <Content Include="README.md" />
+        <Content Include="gifs\glbalexdemo.gif" />
+        <Content Include="gifs\credentials.gif" />
     </ItemGroup>
 
 </Project>
