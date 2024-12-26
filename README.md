@@ -6,17 +6,7 @@
 - [🛠 Prerequisites](#-prerequisites)
 - [📝 Installation](#-installation)
 - [⚙️ Configuration](#-configuration)
-    - [Secrets Management](#secrets-management)
-    - [Logging Configuration](#logging-configuration)
-- [🖥 Usage](#-usage)
-    - [StoreSecret Function](#storesecret-function)
-    - [GetSecret Function](#getsecret-function)
-    - [DeleteSecret Function](#deletesecret-function)
-    - [WriteBalancesFieldsToExcel Function](#writebalancesfieldstoexcel-function)
 - [📜 Logging](#-logging)
-- [🔧 Project Structure](#-project-structure)
-- [🛠 Troubleshooting](#-troubleshooting)
-- [🤝 Contributing](#-contributing)
 - [📝 License](#-license)
 - [📫 Contact](#-contact)
 - [📚 Additional Resources](#-additional-resources)
@@ -25,7 +15,7 @@
 - **OraGlBalEx** is a Excel-DNA add-in that seamlessly integrates Oracle [Fusion General Ledger (GL) API Balance](https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html) data directly into Microsoft Excel. By eliminating intermediate steps between Oracle Fusion and Excel, OraGlBalEx streamlines the data retrieval process, enabling to access and analyze GL balances efficiently.
 Utilizing a single, intuitive Excel function, OraGlBalEx fetches data from the Oracle GL API and enhances it by parsing separation key flexfields into distinct columns. This automation fit for various ad-hoc reporting scenarios, including the generation of trial balances and other financial statements.
 Below is the possible use case scenario.
-- 
+
 ![Watch the Demonstration Video](gifs/glbalexdemo.gif)
 
 ## 🛠 Prerequisites
@@ -45,12 +35,12 @@ Download the ORAGLBALEX-AddIn64-packed.xll file from the latest release on the r
 Use the "Extract All" option on the right-click menu in Windows Explorer to extract contents of the zip file on your local PC.
 Right-click on the xlDuckDb.xll file and unblock it.
 
-### OR
+#### OR
 
 Open Excel
 Launch Microsoft Excel:
 Open Excel as you normally would.
-b. Access the Add-Ins Manager
+Access the Add-Ins Manager
 Navigate to Add-Ins:
 
 Click on the File tab in the ribbon.
@@ -74,15 +64,9 @@ Select the Add-In:
 
 Select OraGlBalEx.xll and click OK.
 
-Confirm Activation
-Ensure Activation:
-
 After browsing, the add-in should appear in the Add-Ins list.
 Ensure that the checkbox next to OraGlBalEx is checked.
 
-Click OK:
-
-Press OK to finalize the registration.
 
 ## ⚙️ Configuration
 ### 1. Authentication Setup
@@ -124,24 +108,33 @@ Error Handling: Returns descriptive error messages if the input format is incorr
 b. Using Windows Credential Manager
 Alternatively, you can manage secrets directly using the Windows Credential Manager application or via the command line. This method is suitable for users who prefer managing their credentials outside of Excel.
 Add entries for oracleuser, oraclepassword, and baseAPIUrl.
+
 c. Managing Secrets via Command Line (Advanced Users)
 For advanced users or those automating the setup process, credentials can also be managed via the command line using appropriate scripts or commands. Refer to the Windows Credential Manager Documentation for detailed instructions.
 
 ### 3. Configuration Summary
-   Authentication: Basic Authentication using oracleuser and oraclepassword.
-   API Base URL: baseAPIUrl (e.g., https://servername.fa.us2.oraclecloud.com:443).
-   Credential Storage: Managed securely via Windows Credential Manager, accessible through Excel UDFs or directly through the Credential Manager application.
+Authentication: Basic Authentication using oracleuser and oraclepassword.
+API Base URL: baseAPIUrl (e.g., https://servername.fa.us2.oraclecloud.com:443).
+Credential Storage: Managed securely via Windows Credential Manager, accessible through Excel UDFs or directly through the Credential Manager application.
 ### 4. Demonstration Video
    To provide a clear and practical understanding of the configuration process, a demonstration video showcasing how to store secrets using Excel functions and manage credentials in Windows Credential Manager is provided below.
 
 ![Watch the Demonstration Video](gifs/credentials.gif)
 
+## 📜 Logging
+Upon initialization, OraGlBalEx automatically creates a logs directory in the same location as the OraGlBalEx.xll add-in file. This centralized directory is designated for storing all log files related to the add-in's operations.
 
+## 📫 Contact
+If you have questions, feel free to reach out via GitHub Issues or [email@sergey.rudenko.ba@gmail.com].
+
+## [📝 License]
+This project is licensed under the MIT License. See the LICENSE file for more details.
 
 ## 📚 Additional Resources
 - Excel-DNA Documentation:
 [Excel-DNA Official Documentation](https://excel-dna.net/)
-
+- REST API for Oracle Fusion Cloud Financials
+[REST API for Oracle Fusion Cloud Financials](https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html)
 
 
 
