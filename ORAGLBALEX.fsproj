@@ -26,6 +26,7 @@
         <Content Include="README.md" />
         <Content Include="gifs\glbalexdemo.gif" />
         <Content Include="gifs\credentials.gif" />
+        <Content Include="examples\gl_balances_rep_sample.xlsx" />
     </ItemGroup>
 
 </Project>

@@ -32,8 +32,7 @@ Before installing OraGlBalEx, ensure you have the following prerequisites:
 ## 📝 Installation
 
 Download the ORAGLBALEX-AddIn64-packed.xll file from the latest release on the right.
-Use the "Extract All" option on the right-click menu in Windows Explorer to extract contents of the zip file on your local PC.
-Right-click on the xlDuckDb.xll file and unblock it.
+Right-click on the ORAGLBALEX-AddIn64-packed.xll file and unblock it.
 
 #### OR
 
@@ -69,6 +68,7 @@ Ensure that the checkbox next to OraGlBalEx is checked.
 
 
 ## ⚙️ Configuration
+
 ### 1. Authentication Setup
    OraGlBalEx utilizes Basic Authentication to connect to the Oracle Fusion REST API. The following credentials and information are required:
 
@@ -112,7 +112,7 @@ Add entries for oracleuser, oraclepassword, and baseAPIUrl.
 c. Managing Secrets via Command Line (Advanced Users)
 For advanced users or those automating the setup process, credentials can also be managed via the command line using appropriate scripts or commands. Refer to the Windows Credential Manager Documentation for detailed instructions.
 
-### 3. Configuration Summary
+### 4. Configuration Summary
 Authentication: Basic Authentication using oracleuser and oraclepassword.
 API Base URL: baseAPIUrl (e.g., https://servername.fa.us2.oraclecloud.com:443).
 Credential Storage: Managed securely via Windows Credential Manager, accessible through Excel UDFs or directly through the Credential Manager application.
@@ -133,7 +133,7 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 ## 📚 Additional Resources
 - Excel-DNA Documentation:
 [Excel-DNA Official Documentation](https://excel-dna.net/)
-- REST API for Oracle Fusion Cloud Financials
+- REST API for Oracle Fusion Cloud Financials:
 [REST API for Oracle Fusion Cloud Financials](https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html)
 
 
