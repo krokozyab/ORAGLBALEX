@@ -25,6 +25,7 @@
 - **OraGlBalEx** is a Excel-DNA add-in developed in F# that seamlessly integrates Oracle [Fusion General Ledger (GL) API Balance](https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html) data directly into Microsoft Excel. By eliminating intermediate steps between Oracle Fusion and Excel, OraGlBalEx streamlines the data retrieval process, enabling to access and analyze GL balances efficiently.
 Utilizing a single, intuitive Excel function, OraGlBalEx fetches data from the Oracle GL API and enhances it by parsing separation key flexfields into distinct columns. This automation fit for various ad-hoc reporting scenarios, including the generation of trial balances and other financial statements.
 Below is the possible use case scenario.
+- 
 ![Watch the Demonstration Video](gifs/glbalexdemo.gif)
 ---
 
@@ -41,12 +42,7 @@ Before installing OraGlBalEx, ensure you have the following prerequisites:
 
 ## 📝 Installation
 
-### 1. **Clone the Repository**
-
-Clone the OraGlBalEx repository to your local machine:
-
-git clone https://github.com/yourusername/OraGlBalEx.git
-
+Download the ORAGLBALEX-AddIn64-packed.xll file from the latest release on the right.
 
 
 ## 📚 Additional Resources
