@@ -37,7 +37,7 @@
 - **Custom JSON Converters:** Handle complex JSON deserialization scenarios with custom converters.
 - **Error Handling:** Gracefully handle API errors and deserialization issues, providing informative feedback within Excel.
 - **Configurable Logging:** Store logs in user-specific directories following Windows best practices.
-
+  ![demo](gifs/glbalexdemo.gif)
 ---
 
 ## 🛠 Prerequisites
@@ -57,5 +57,14 @@ Before installing OraGlBalEx, ensure you have the following prerequisites:
 
 Clone the OraGlBalEx repository to your local machine:
 
-```bash
 git clone https://github.com/yourusername/OraGlBalEx.git
+
+![demo](gifs/credentials.gif)
+
+## 📚 Additional Resources
+- Excel-DNA Documentation:
+[Excel-DNA Official Documentation](https://excel-dna.net/)
+
+
+
+
