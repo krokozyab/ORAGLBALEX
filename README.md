@@ -116,6 +116,9 @@ For advanced users or those automating the setup process, credentials can also b
 Authentication: Basic Authentication using oracleuser and oraclepassword.
 API Base URL: baseAPIUrl (e.g., https://servername.fa.us2.oraclecloud.com:443).
 Credential Storage: Managed securely via Windows Credential Manager, accessible through Excel UDFs or directly through the Credential Manager application.
+
+Check files in examples folder.
+
 ### 4. Demonstration Video
    To provide a clear and practical understanding of the configuration process, a demonstration video showcasing how to store secrets using Excel functions and manage credentials in Windows Credential Manager is provided below.
 
