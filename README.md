@@ -1,10 +1,5 @@
 ﻿# OraGlBalEx Excel-DNA Add-In
 
-
-**OraGlBalEx** is a powerful Excel-DNA add-in developed in F# that seamlessly integrates Oracle General Ledger (GL) Balances data directly into Microsoft Excel. Leveraging asynchronous operations, secure credentials management, and structured logging with Serilog, OraGlBalEx ensures a responsive and efficient user experience while fetching and processing financial data from Oracle Fusion REST APIs.
-
----
-
 ## 📄 Table of Contents
 
 - [🚀 Features](#-features)
@@ -26,18 +21,11 @@
 - [📫 Contact](#-contact)
 - [📚 Additional Resources](#-additional-resources)
 
----
-
 ## 🚀 Features
-
-- **Asynchronous Data Fetching:** Retrieve Oracle GL Balances without freezing Excel, ensuring a responsive user interface.
-- **Structured Logging:** Utilize Serilog for comprehensive logging, aiding in monitoring and debugging.
-- **Dynamic Data Processing:** Automatically segment and organize `DetailAccountCombination` fields into separate columns.
-- **Secure Credentials Management:** Safely manage and encode credentials using Windows Credential Manager.
-- **Custom JSON Converters:** Handle complex JSON deserialization scenarios with custom converters.
-- **Error Handling:** Gracefully handle API errors and deserialization issues, providing informative feedback within Excel.
-- **Configurable Logging:** Store logs in user-specific directories following Windows best practices.
-  ![demo](gifs/glbalexdemo.gif)
+- **OraGlBalEx** is a Excel-DNA add-in developed in F# that seamlessly integrates Oracle [Fusion General Ledger (GL) API Balance](https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html) data directly into Microsoft Excel. By eliminating intermediate steps between Oracle Fusion and Excel, OraGlBalEx streamlines the data retrieval process, enabling to access and analyze GL balances efficiently.
+Utilizing a single, intuitive Excel function, OraGlBalEx fetches data from the Oracle GL API and enhances it by parsing separation key flexfields into distinct columns. This automation fit for various ad-hoc reporting scenarios, including the generation of trial balances and other financial statements.
+Below is the possible use case scenario.
+![Watch the Demonstration Video](gifs/glbalexdemo.gif)
 ---
 
 ## 🛠 Prerequisites
@@ -45,8 +33,8 @@
 Before installing OraGlBalEx, ensure you have the following prerequisites:
 
 - **Microsoft Excel:** Version compatible with Excel-DNA add-ins (Excel 2007 and later).
-- **.NET 6.0:** Ensure that the .NET 6.0 SDK is installed on your machine.
-- **Oracle Fusion REST API Access:** Valid credentials and necessary permissions to access Oracle GL Balances APIs.
+- **.NET 6.0:** Ensure that the [.NET 6.0 runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) is installed on your machine.
+- **Oracle Fusion REST API Access:** Valid credentials and necessary permissions to access Oracle GL Balances APIs (only basic authorization here).
 - **PowerShell (Optional):** For managing credentials and environment setup.
 
 ---
@@ -59,7 +47,7 @@ Clone the OraGlBalEx repository to your local machine:
 
 git clone https://github.com/yourusername/OraGlBalEx.git
 
-![demo](gifs/credentials.gif)
+
 
 ## 📚 Additional Resources
 - Excel-DNA Documentation:
