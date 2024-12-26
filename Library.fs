@@ -244,7 +244,7 @@ module OraExcelDna =
                     HelpTopic = "https://docs.oracle.com/en/cloud/saas/financials/24d/farfa/op-ledgerbalances-get.html")>]
     let WriteBalancesFieldsToExcel
         ([<ExcelArgument(Name = "Finder", Description = "Used as a predefined finder to search the collection.")>] balancesFinder)
-        ([<ExcelArgument(Name = "Fiields", Description = "This parameter filters the resource fields. Only the specified fields are returned.")>] balancesDisplayFields) : obj =
+        ([<ExcelArgument(Name = "Fields", Description = "This parameter filters the resource fields. Only the specified fields are returned.")>] balancesDisplayFields) : obj =
         async {
             // Define your credentials and requestLimit
             let requestLimit = 500
