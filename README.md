@@ -31,7 +31,7 @@ Before installing OraGlBalEx, ensure you have the following prerequisites:
 
 ## 📝 Installation
 
-Download the ORAGLBALEX-AddIn64-packed.xll file from the latest release on the right.
+Download the ORAGLBALEX-AddIn64-packed.xll file from the latest release on the right (Releases).
 Right-click on the ORAGLBALEX-AddIn64-packed.xll file and unblock it.
 
 #### OR
@@ -97,20 +97,21 @@ input (string): A single string in the format "key: value".
 Example Usage:
 
 =StoreSecret("oracleuser: your_username")
+
 =StoreSecret("oraclepassword: your_password")
+
 =StoreSecret("baseAPIUrl: https://servername.fa.us2.oraclecloud.com:443")
 
 Function Description:
 
 Store Secret: Saves the provided key-value pair in the Windows Credential Manager as a generic credential.
+
 Error Handling: Returns descriptive error messages if the input format is incorrect or if the storage process fails.
 
 b. Using Windows Credential Manager
 Alternatively, you can manage secrets directly using the Windows Credential Manager application or via the command line. This method is suitable for users who prefer managing their credentials outside of Excel.
 Add entries for oracleuser, oraclepassword, and baseAPIUrl.
 
-c. Managing Secrets via Command Line (Advanced Users)
-For advanced users or those automating the setup process, credentials can also be managed via the command line using appropriate scripts or commands. Refer to the Windows Credential Manager Documentation for detailed instructions.
 
 ### 4. Configuration Summary
 Authentication: Basic Authentication using oracleuser and oraclepassword.
@@ -126,7 +127,7 @@ Check files in examples folder, see A14 cell for formula:
 ![Watch the Demonstration Video](gifs/credentials.gif)
 
 ## 📜 Logging
-Upon initialization, OraGlBalEx automatically creates a logs directory in the same location as the OraGlBalEx.xll add-in file. This centralized directory is designated for storing all log files related to the add-in's operations.
+Upon initialization, OraGlBalEx automatically creates a logs directory in the same location as the OraGlBalEx.xll add-in file. This directory is designated for storing all log files related to the add-in's operations.
 
 ## 📫 Contact
 If you have questions, feel free to reach out via GitHub Issues or [email@sergey.rudenko.ba@gmail.com].
