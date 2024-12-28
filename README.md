@@ -31,7 +31,7 @@ Before installing OraGlBalEx, ensure you have the following prerequisites:
 
 ## 📝 Installation
 
-Download the ORAGLBALEX-AddIn64-packed.xll file from the latest release on the right (Releases).
+Download the ORAGLBALEX-AddIn64-packed.xll file from the [latest release](https://github.com/krokozyab/ORAGLBALEX/releases/latest).
 Right-click on the ORAGLBALEX-AddIn64-packed.xll file and unblock it.
 
 #### OR
